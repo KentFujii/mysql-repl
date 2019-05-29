@@ -1,0 +1,25 @@
+version: '2'
+services:
+  mysql-master:
+    build: ./master
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./master/room.sql:/docker-entrypoint-initdb.d/room.sql
+      - ./master/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: root
+      TZ: "Asia/Tokyo"
+  mysql-slave:
+    build: ./slave
+    ports:
+      - '3307:3306'
+    depends_on:
+      - mysql-master
+    volumes:
+      - ./slave/start-slave.sh:/docker-entrypoint-initdb.d/slave.sh
+      - ./slave/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: "Asia/Tokyo"
